@@ -131,15 +131,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // تم حذف معالج الحدث الخاص بـ downloadBtn
 
-    const downloadSizeSelector = document.querySelector('.download-size-selector');
+    const sizeOptionLabels = document.querySelectorAll('.size-option');
 
-    if (downloadSizeSelector) { // تأكد من وجود العنصر قبل إضافة المستمع
-        downloadSizeSelector.addEventListener('click', (event) => {
-            const clickedLabel = event.target.closest('.size-option');
-
-            if (!clickedLabel) {
-                return; // النقرة لم تكن على أحد خيارات الحجم
-            }
+    sizeOptionLabels.forEach(label => {
+        label.addEventListener('click', (event) => {
+            // event.currentTarget يشير إلى الـ label الذي تم ربط المستمع به مباشرة
+            const clickedLabel = event.currentTarget; 
 
             const radioInput = clickedLabel.querySelector('input[type="radio"]');
             if (!radioInput) {
@@ -147,23 +144,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // تأكد من تحديد الراديو الموافق للـ label الذي تم النقر عليه
-            if (!radioInput.checked) {
-                 radioInput.checked = true;
-            }
+            // ليس من الضروري تعيين radioInput.checked = true يدويًا هنا،
+            // المتصفح سيتعامل مع تحديد الراديو عند النقر على الـ label المرتبط به.
+            // إذا كان الراديو غير محدد، سيقوم المتصفح بتحديده.
 
             const size = parseInt(radioInput.value, 10);
 
             if (!lastValidJsonString) {
-                // هذا الشرط يجب ألا يتحقق عادةً لأن قسم الخيارات يكون مخفيًا
-                // ولكن كإجراء احترازي
                 alert('يرجى توليد رمز QR أولاً.');
                 return;
             }
 
             // إنشاء حاوية مؤقتة لتوليد رمز QR بحجم التنزيل المطلوب
             const tempQrContainer = document.createElement('div');
-            // لا تحتاج إلى إضافتها إلى DOM للعرض، qrcode.js يمكنه العمل مع عنصر غير متصل
 
             try {
                 // توليد رمز QR في الحاوية المؤقتة
@@ -181,12 +174,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (canvas) {
                     const dataUrl = canvas.toDataURL('image/png');
                     
-                    // إنشاء رابط وهمي لتنزيل الصورة
                     const link = document.createElement('a');
                     link.href = dataUrl;
-                    link.download = `benefit_qr_${size}px.png`; // اسم الملف المقترح
+                    link.download = `benefit_qr_${size}px.png`; 
                     
-                    // إضافته إلى DOM، النقر عليه، ثم إزالته
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
@@ -201,5 +192,5 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('حدث خطأ أثناء توليد رمز QR للتنزيل.');
             }
         });
-    }
+    });
 });
