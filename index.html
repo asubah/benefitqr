@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مولد رمز QR للمدفوعات</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;600&display=swap');
         body { font-family: 'Noto Naskh Arabic', Arial, sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
         .container { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
         h1 { text-align: center; }
@@ -16,6 +16,70 @@
         #qrcodeContainer { margin-top: 20px; display: flex; justify-content: center; align-items: center; min-height: 256px; border: 1px dashed #ccc; padding: 10px; }
         #qrcodeContainer img { max-width: 100%; height: auto; }
         .error { color: red; margin-bottom: 10px; }
+
+        /* --- أنماط خيارات حجم التنزيل المحسنة --- */
+        #downloadOptions h4 {
+            margin-bottom: 12px; /* زيادة المسافة السفلية للعنوان */
+            font-weight: 600; /* وزن خط أثقل قليلاً للعنوان */
+            color: #4a5568; /* لون أغمق قليلاً للعنوان */
+        }
+
+        .download-size-selector {
+            display: flex; /* استخدام Flexbox لتوزيع الخيارات */
+            gap: 10px; /* المسافة بين خيارات الحجم */
+            margin-bottom: 15px; /* المسافة قبل زر التنزيل */
+        }
+
+        .size-option { /* هذا هو عنصر <label> */
+            flex: 1; /* يجعل كل خيار يأخذ مساحة متساوية */
+            display: block; /* لضمان أن الـ label يملأ مساحة flex item */
+            border-radius: 6px; /* زوايا أكثر دائرية قليلاً */
+            cursor: pointer;
+            position: relative; /* ضروري إذا كنت ستضع input بشكل مطلق (غير مستخدم هنا) */
+            transition: box-shadow 0.2s ease-in-out; /* تأثير ظل ناعم للانتقال */
+        }
+
+        .size-option:hover {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.07); /* ظل خفيف عند التحويم */
+        }
+
+        .size-option input[type="radio"] {
+            display: none; /* إخفاء زر الراديو الأصلي */
+        }
+
+        .size-option .size-option-text { /* هذا هو عنصر <span> الذي يمثل الزر المرئي */
+            display: block; /* يجعله يملأ الـ label */
+            text-align: center;
+            padding: 10px 12px; /* تعديل الحشوة قليلاً */
+            border: 1.5px solid #cbd5e0; /* حدود أرق قليلاً وبلون مختلف */
+            border-radius: 6px; /* يجب أن يتطابق مع .size-option */
+            background-color: #f7fafc; /* لون خلفية فاتح جداً */
+            color: #4a5568; /* لون نص أغمق قليلاً */
+            font-size: 14px; /* حجم خط أصغر قليلاً */
+            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        /* تنسيق الخيار عند التحويم (إذا لم يكن محددًا) */
+        .size-option input[type="radio"]:not(:checked) + .size-option-text:hover {
+            background-color: #edf2f7;
+            border-color: #a0aec0;
+        }
+
+        /* تنسيق الخيار المحدد */
+        .size-option input[type="radio"]:checked + .size-option-text {
+            background-color: #007bff; /* اللون الأزرق الأساسي للتطبيق */
+            border-color: #007bff;
+            color: white;
+            font-weight: 600; /* خط أعرض للخيار المحدد */
+            box-shadow: 0 1px 3px rgba(0, 123, 255, 0.3); /* ظل خفيف للخيار المحدد */
+        }
+
+        /* تنسيق الخيار المحدد عند التحويم */
+        .size-option input[type="radio"]:checked + .size-option-text:hover {
+            background-color: #0056b3; /* لون أزرق أغمق عند التحويم على المحدد */
+            border-color: #0056b3;
+        }
+        /* --- نهاية أنماط خيارات حجم التنزيل المحسنة --- */
     </style>
 </head>
 <body>
@@ -39,12 +103,14 @@
         <!-- قسم خيارات التنزيل - سيكون مخفيًا في البداية -->
         <div id="downloadOptions" style="display: none; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
             <h4>خيارات التنزيل:</h4>
-            <div>
-                <label>
-                    <input type="radio" name="downloadSize" value="256" checked> 256x256 بكسل
+            <div class="download-size-selector">
+                <label class="size-option">
+                    <input type="radio" name="downloadSize" value="256" checked>
+                    <span class="size-option-text">256x256 بكسل</span>
                 </label>
-                <label style="margin-right: 15px;">
-                    <input type="radio" name="downloadSize" value="512"> 512x512 بكسل
+                <label class="size-option">
+                    <input type="radio" name="downloadSize" value="512">
+                    <span class="size-option-text">512x512 بكسل</span>
                 </label>
             </div>
             <button id="downloadBtn" style="margin-top: 10px;">تنزيل رمز QR</button>
