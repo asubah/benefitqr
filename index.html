@@ -35,6 +35,20 @@
         <div id="errorMessage" class="error"></div>
 
         <button id="generateBtn">توليد رمز QR</button>
+
+        <!-- قسم خيارات التنزيل - سيكون مخفيًا في البداية -->
+        <div id="downloadOptions" style="display: none; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
+            <h4>خيارات التنزيل:</h4>
+            <div>
+                <label>
+                    <input type="radio" name="downloadSize" value="256" checked> 256x256 بكسل
+                </label>
+                <label style="margin-right: 15px;">
+                    <input type="radio" name="downloadSize" value="512"> 512x512 بكسل
+                </label>
+            </div>
+            <button id="downloadBtn" style="margin-top: 10px;">تنزيل رمز QR</button>
+        </div>
         
         <div id="qrcodeContainer">
             <p>سيتم عرض رمز QR هنا</p>

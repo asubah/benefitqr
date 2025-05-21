@@ -39,6 +39,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const errorMessageDiv = document.getElementById('errorMessage');
     let qrCodeInstance = null; // لتتبع نسخة QRCode الحالية
 
+    const downloadOptionsDiv = document.getElementById('downloadOptions');
+    const downloadBtn = document.getElementById('downloadBtn');
+    let lastValidJsonString = null; // لتخزين آخر JSON صالح تم توليده
+
     generateBtn.addEventListener('click', () => {
         const iban = ibanInput.value.trim();
         const amount = amountInput.value.trim(); // القيمة ستكون سلسلة نصية
@@ -49,11 +53,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // التحقق من أن IBAN ليس فارغًا
         if (!iban) {
             errorMessageDiv.textContent = 'الرجاء إدخال رقم IBAN.';
-            // مسح أي رمز QR سابق إذا كان IBAN فارغًا
             if (qrCodeInstance) {
                 qrcodeContainer.innerHTML = '<p>سيتم عرض رمز QR هنا</p>';
                 qrCodeInstance = null;
             }
+            lastValidJsonString = null;
+            downloadOptionsDiv.style.display = 'none';
             return;
         }
 
@@ -64,6 +69,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 qrcodeContainer.innerHTML = '<p>سيتم عرض رمز QR هنا</p>';
                 qrCodeInstance = null;
             }
+            lastValidJsonString = null;
+            downloadOptionsDiv.style.display = 'none';
             return;
         }
 
@@ -76,6 +83,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     qrcodeContainer.innerHTML = '<p>سيتم عرض رمز QR هنا</p>';
                     qrCodeInstance = null;
                 }
+                lastValidJsonString = null;
+                downloadOptionsDiv.style.display = 'none';
                 return;
             }
         }
@@ -110,6 +119,65 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("خطأ في توليد رمز QR:", error);
             errorMessageDiv.textContent = 'حدث خطأ أثناء توليد رمز QR. الرجاء التحقق من المدخلات.';
             qrcodeContainer.innerHTML = '<p>فشل توليد رمز QR</p>';
+            lastValidJsonString = null; 
+            downloadOptionsDiv.style.display = 'none'; 
+            return; 
+        }
+
+        // إذا نجح التوليد
+        lastValidJsonString = jsonString;
+        downloadOptionsDiv.style.display = 'block'; 
+    });
+
+    downloadBtn.addEventListener('click', () => {
+        if (!lastValidJsonString) {
+            alert('يرجى توليد رمز QR أولاً.');
+            return;
+        }
+
+        const selectedSizeInput = document.querySelector('input[name="downloadSize"]:checked');
+        if (!selectedSizeInput) {
+            alert('الرجاء اختيار حجم التنزيل.'); 
+            return;
+        }
+        const size = parseInt(selectedSizeInput.value, 10);
+
+        // إنشاء حاوية مؤقتة لتوليد رمز QR بحجم التنزيل المطلوب
+        const tempQrContainer = document.createElement('div');
+
+        try {
+            // توليد رمز QR في الحاوية المؤقتة
+            new QRCode(tempQrContainer, {
+                text: lastValidJsonString,
+                width: size,
+                height: size,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            // الحصول على عنصر canvas الذي تم إنشاؤه بواسطة qrcode.js
+            const canvas = tempQrContainer.querySelector('canvas');
+            if (canvas) {
+                const dataUrl = canvas.toDataURL('image/png');
+                
+                // إنشاء رابط وهمي لتنزيل الصورة
+                const link = document.createElement('a');
+                link.href = dataUrl;
+                link.download = `benefit_qr_${size}px.png`; 
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+            } else {
+                console.error('لم يتم العثور على Canvas لتنزيل رمز QR.');
+                alert('حدث خطأ أثناء إعداد ملف التنزيل.');
+            }
+
+        } catch (error) {
+            console.error("خطأ في توليد رمز QR للتنزيل:", error);
+            alert('حدث خطأ أثناء توليد رمز QR للتنزيل.');
         }
     });
 });
