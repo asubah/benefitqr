@@ -67,6 +67,19 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // التحقق من المبلغ إذا تم إدخاله
+        if (amount !== '') { // فقط إذا لم يكن حقل المبلغ فارغًا
+            const numericAmount = parseFloat(amount);
+            if (isNaN(numericAmount) || numericAmount <= 0) {
+                errorMessageDiv.textContent = 'إذا تم إدخال مبلغ، فيجب أن يكون أكبر من الصفر.';
+                if (qrCodeInstance) {
+                    qrcodeContainer.innerHTML = '<p>سيتم عرض رمز QR هنا</p>';
+                    qrCodeInstance = null;
+                }
+                return;
+            }
+        }
+
         // تكوين كائن البيانات
         const data = {
             iban: iban
