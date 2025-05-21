@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let qrCodeInstance = null; // لتتبع نسخة QRCode الحالية
 
     const downloadOptionsDiv = document.getElementById('downloadOptions');
-    const downloadBtn = document.getElementById('downloadBtn');
+    // const downloadBtn = document.getElementById('downloadBtn'); // تم الحذف
     let lastValidJsonString = null; // لتخزين آخر JSON صالح تم توليده
 
     generateBtn.addEventListener('click', () => {
@@ -129,55 +129,77 @@ document.addEventListener('DOMContentLoaded', () => {
         downloadOptionsDiv.style.display = 'block'; 
     });
 
-    downloadBtn.addEventListener('click', () => {
-        if (!lastValidJsonString) {
-            alert('يرجى توليد رمز QR أولاً.');
-            return;
-        }
+    // تم حذف معالج الحدث الخاص بـ downloadBtn
 
-        const selectedSizeInput = document.querySelector('input[name="downloadSize"]:checked');
-        if (!selectedSizeInput) {
-            alert('الرجاء اختيار حجم التنزيل.'); 
-            return;
-        }
-        const size = parseInt(selectedSizeInput.value, 10);
+    const downloadSizeSelector = document.querySelector('.download-size-selector');
 
-        // إنشاء حاوية مؤقتة لتوليد رمز QR بحجم التنزيل المطلوب
-        const tempQrContainer = document.createElement('div');
+    if (downloadSizeSelector) { // تأكد من وجود العنصر قبل إضافة المستمع
+        downloadSizeSelector.addEventListener('click', (event) => {
+            const clickedLabel = event.target.closest('.size-option');
 
-        try {
-            // توليد رمز QR في الحاوية المؤقتة
-            new QRCode(tempQrContainer, {
-                text: lastValidJsonString,
-                width: size,
-                height: size,
-                colorDark: "#000000",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.H
-            });
-
-            // الحصول على عنصر canvas الذي تم إنشاؤه بواسطة qrcode.js
-            const canvas = tempQrContainer.querySelector('canvas');
-            if (canvas) {
-                const dataUrl = canvas.toDataURL('image/png');
-                
-                // إنشاء رابط وهمي لتنزيل الصورة
-                const link = document.createElement('a');
-                link.href = dataUrl;
-                link.download = `benefit_qr_${size}px.png`; 
-                
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-
-            } else {
-                console.error('لم يتم العثور على Canvas لتنزيل رمز QR.');
-                alert('حدث خطأ أثناء إعداد ملف التنزيل.');
+            if (!clickedLabel) {
+                return; // النقرة لم تكن على أحد خيارات الحجم
             }
 
-        } catch (error) {
-            console.error("خطأ في توليد رمز QR للتنزيل:", error);
-            alert('حدث خطأ أثناء توليد رمز QR للتنزيل.');
-        }
-    });
+            const radioInput = clickedLabel.querySelector('input[type="radio"]');
+            if (!radioInput) {
+                console.error('لم يتم العثور على input radio داخل .size-option');
+                return;
+            }
+
+            // تأكد من تحديد الراديو الموافق للـ label الذي تم النقر عليه
+            if (!radioInput.checked) {
+                 radioInput.checked = true;
+            }
+
+            const size = parseInt(radioInput.value, 10);
+
+            if (!lastValidJsonString) {
+                // هذا الشرط يجب ألا يتحقق عادةً لأن قسم الخيارات يكون مخفيًا
+                // ولكن كإجراء احترازي
+                alert('يرجى توليد رمز QR أولاً.');
+                return;
+            }
+
+            // إنشاء حاوية مؤقتة لتوليد رمز QR بحجم التنزيل المطلوب
+            const tempQrContainer = document.createElement('div');
+            // لا تحتاج إلى إضافتها إلى DOM للعرض، qrcode.js يمكنه العمل مع عنصر غير متصل
+
+            try {
+                // توليد رمز QR في الحاوية المؤقتة
+                new QRCode(tempQrContainer, {
+                    text: lastValidJsonString,
+                    width: size,
+                    height: size,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+
+                // الحصول على عنصر canvas الذي تم إنشاؤه بواسطة qrcode.js
+                const canvas = tempQrContainer.querySelector('canvas');
+                if (canvas) {
+                    const dataUrl = canvas.toDataURL('image/png');
+                    
+                    // إنشاء رابط وهمي لتنزيل الصورة
+                    const link = document.createElement('a');
+                    link.href = dataUrl;
+                    link.download = `benefit_qr_${size}px.png`; // اسم الملف المقترح
+                    
+                    // إضافته إلى DOM، النقر عليه، ثم إزالته
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                } else {
+                    console.error('لم يتم العثور على Canvas لتنزيل رمز QR.');
+                    alert('حدث خطأ أثناء إعداد ملف التنزيل.');
+                }
+
+            } catch (error) {
+                console.error("خطأ في توليد رمز QR للتنزيل:", error);
+                alert('حدث خطأ أثناء توليد رمز QR للتنزيل.');
+            }
+        });
+    }
 });
