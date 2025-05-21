@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مولد رمز QR للمدفوعات</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
+        .container { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; }
+        input[type="text"], input[type="number"] { width: calc(100% - 22px); padding: 10px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background-color: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #0056b3; }
+        #qrcodeContainer { margin-top: 20px; display: flex; justify-content: center; align-items: center; min-height: 256px; border: 1px dashed #ccc; padding: 10px; }
+        #qrcodeContainer img { max-width: 100%; height: auto; }
+        .error { color: red; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>مولد رمز QR للمدفوعات (BenefitPay)</h1>
+        
+        <div>
+            <label for="iban">رقم IBAN (مطلوب):</label>
+            <input type="text" id="iban" placeholder="مثال: BHXXBENF00000000000000" required>
+        </div>
+        
+        <div>
+            <label for="amount">المبلغ (دينار بحريني - اختياري):</label>
+            <input type="number" id="amount" placeholder="مثال: 10.500" step="0.001" min="0">
+        </div>
+        
+        <div id="errorMessage" class="error"></div>
+
+        <button id="generateBtn">توليد رمز QR</button>
+        
+        <div id="qrcodeContainer">
+            <p>سيتم عرض رمز QR هنا</p>
+        </div>
+    </div>
+
+    <!-- تضمين مكتبة qrcode.js -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <!-- ربط ملف JavaScript الخاص بالتطبيق -->
+    <script src="app.js"></script>
+</body>
+</html>
